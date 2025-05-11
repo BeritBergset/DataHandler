@@ -55,7 +55,6 @@
             trendToolStripMenuItem = new ToolStripMenuItem();
             createReportToolStripMenuItem = new ToolStripMenuItem();
             alarmHandlingToolStripMenuItem = new ToolStripMenuItem();
-            button1 = new Button();
             ((System.ComponentModel.ISupportInitialize)cht_Temp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)chart2).BeginInit();
             menuStrip1.SuspendLayout();
@@ -114,6 +113,7 @@
             // 
             // txtTT02
             // 
+            txtTT02.Enabled = false;
             txtTT02.Location = new Point(329, 129);
             txtTT02.Name = "txtTT02";
             txtTT02.Size = new Size(78, 31);
@@ -179,9 +179,9 @@
             // 
             lstMessages.FormattingEnabled = true;
             lstMessages.ItemHeight = 25;
-            lstMessages.Location = new Point(31, 441);
+            lstMessages.Location = new Point(31, 666);
             lstMessages.Name = "lstMessages";
-            lstMessages.Size = new Size(376, 329);
+            lstMessages.Size = new Size(1360, 154);
             lstMessages.TabIndex = 29;
             // 
             // chart2
@@ -191,13 +191,13 @@
             legend2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Top;
             legend2.Name = "Legend1";
             chart2.Legends.Add(legend2);
-            chart2.Location = new Point(475, 459);
+            chart2.Location = new Point(475, 420);
             chart2.Name = "chart2";
             series2.ChartArea = "ChartArea1";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             chart2.Series.Add(series2);
-            chart2.Size = new Size(916, 291);
+            chart2.Size = new Size(916, 240);
             chart2.TabIndex = 24;
             chart2.Text = "chart2";
             // 
@@ -227,14 +227,14 @@
             // trendToolStripMenuItem
             // 
             trendToolStripMenuItem.Name = "trendToolStripMenuItem";
-            trendToolStripMenuItem.Size = new Size(270, 34);
+            trendToolStripMenuItem.Size = new Size(222, 34);
             trendToolStripMenuItem.Text = "Trend";
             trendToolStripMenuItem.Click += trendToolStripMenuItem_Click;
             // 
             // createReportToolStripMenuItem
             // 
             createReportToolStripMenuItem.Name = "createReportToolStripMenuItem";
-            createReportToolStripMenuItem.Size = new Size(270, 34);
+            createReportToolStripMenuItem.Size = new Size(222, 34);
             createReportToolStripMenuItem.Text = "Create Report";
             createReportToolStripMenuItem.Click += createReportToolStripMenuItem_Click;
             // 
@@ -243,24 +243,14 @@
             alarmHandlingToolStripMenuItem.Name = "alarmHandlingToolStripMenuItem";
             alarmHandlingToolStripMenuItem.Size = new Size(152, 29);
             alarmHandlingToolStripMenuItem.Text = "Alarm Handling";
-            // 
-            // button1
-            // 
-            button1.Location = new Point(31, 338);
-            button1.Name = "button1";
-            button1.Size = new Size(123, 50);
-            button1.TabIndex = 31;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
+            alarmHandlingToolStripMenuItem.Click += alarmHandlingToolStripMenuItem_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.GradientInactiveCaption;
-            ClientSize = new Size(1418, 785);
-            Controls.Add(button1);
+            ClientSize = new Size(1418, 879);
             Controls.Add(lstMessages);
             Controls.Add(label5);
             Controls.Add(cbEHT01Mode);
@@ -310,6 +300,5 @@
         private ToolStripMenuItem createReportToolStripMenuItem;
         private ToolStripMenuItem alarmHandlingToolStripMenuItem;
         private ToolStripMenuItem trendToolStripMenuItem;
-        private Button button1;
     }
 }

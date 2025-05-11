@@ -7,6 +7,9 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Markup;
 using Microsoft.Data.SqlTypes;
+using Ass6_GUI;
+using Opc.UaFx;
+using AirHeater;
 
 namespace Ass6GUI
 {
@@ -20,8 +23,12 @@ namespace Ass6GUI
         //private List<double> MY_TT02_values = new List<double>();
         //private List<double> MY_TT03_values = new List<double>();
         private OpcClient clientR;
-       
+
         private int cnt = 0;
+        public SqlConnection SqlCon = new SqlConnection("Data source = DESKTOP-MHK7BOK\\SQLEXPRESS;Initial Catalog =AirHeater;Integrated Security=True;TrustServerCertificate=True");
+        public bool TT02H_Activ = false;
+        public bool TT02L_Activ = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -47,19 +54,33 @@ namespace Ass6GUI
             //les inn alle variabler temperaturar pr syklustid
             string TT01 = "ns=2;s=TT01";
             string TT02 = "ns=2;s=TT02";
+            string strTT02_H = "ns=2;s=TT02H_AL";
+            string strTT02_L = "ns=2;s=TT02L_AL";
             string TT02_ref = "ns=2;s=TT02_ref";
             string EHT01 = "ns=2;s=EHT01";
             string EHT01_Mode = "ns=2;s=EHT01_Mode";
+
             Opc.UaFx.OpcValue opcData1 = clientR.ReadNode(TT01);
             Opc.UaFx.OpcValue opcData2 = clientR.ReadNode(TT02);
             Opc.UaFx.OpcValue opcData3 = clientR.ReadNode(TT02_ref);
             Opc.UaFx.OpcValue opcData4 = clientR.ReadNode(EHT01);
             Opc.UaFx.OpcValue opcData5 = clientR.ReadNode(EHT01_Mode).As<int>();
+            Opc.UaFx.OpcValue opcData6 = clientR.ReadNode(strTT02_H).As<bool>();
+            Opc.UaFx.OpcValue opcData7 = clientR.ReadNode(strTT02_L).As<bool>(); ;
+            lstMessages.Items.Add(DateTime.Now + " TT02_H: " + opcData6);
+            lstMessages.Items.Add(DateTime.Now + " TT02_L: " + opcData7);
+
+            Type valueType = opcData6.Value.GetType();
+            lstMessages.Items.Add($"Type of opcData6.Value: {valueType}");
+
+
             TT01_values.Add((double)opcData1.Value);
             TT02_values.Add((double)opcData2.Value);
             TT02ref_values.Add((double)opcData3.Value);
             EHT01_values.Add((double)opcData4.Value);
+
             x_values.Add(cnt);
+
 
             txtTT01.Text = TT01_values[cnt].ToString("#.##");
             txtTT02.Text = TT02_values[cnt].ToString("#.##");
@@ -72,26 +93,60 @@ namespace Ass6GUI
             cht_Temp.Series["TT02 Reference"].Points.AddXY(x_values[cnt], TT02ref_values[cnt]);
             chart2.Series["EHT01"].Points.AddXY(x_values[cnt], EHT01_values[cnt]);
 
-            //Connect to SQL:
-            string SQLconnectionString = "Data source = DESKTOP-MHK7BOK\\SQLEXPRESS;Initial Catalog =AirHeater;Integrated Security=True;TrustServerCertificate=True";
-            SqlConnection SqlCon = new SqlConnection(SQLconnectionString);
-            SqlCon.Open();
+            ////////////////////////////////////////////////////////////////////////////////////
+            //Write samples to SQL server Cyclic
 
+            string SQLQueryWriteSample1 = $"insertsample TT01,{TT01_values[cnt]},'{DateTime.Now}'";
 
+            string SQLQueryWriteSample2 = $"insertsample TT02,{TT02_values[cnt]},'{DateTime.Now}'";
+            string SQLQueryWriteSample3 = $"insertsample EHT01,{EHT01_values[cnt]},'{DateTime.Now}'";
 
-
-
-            DateTime Now = DateTime.Now;
-
-            string SQLQueryWriteSample1 = $"insertsample TT01,{TT01_values[cnt]},'{Now}'";
-            lstMessages.Items.Add(DateTime.Now + SQLQueryWriteSample1);
-            string SQLQueryWriteSample2 = "insertsample TT02,10.44,'2025-05-08 13:45:00'";
-
-            SqlCommand SqlCmd = new SqlCommand(SQLQueryWriteSample1,SqlCon);
+            SqlCommand SqlCmd = new SqlCommand(SQLQueryWriteSample1, SqlCon);
             SqlCmd.ExecuteNonQuery();
             SqlCommand SqlCmd2 = new SqlCommand(SQLQueryWriteSample2, SqlCon);
             SqlCmd2.ExecuteNonQuery();
-            SqlCon.Close();
+            SqlCommand SqlCmd3 = new SqlCommand(SQLQueryWriteSample3, SqlCon);
+            SqlCmd3.ExecuteNonQuery();
+            lstMessages.Items.Add(DateTime.Now + ": TT02_H_Activ før if " + TT02H_Activ);
+
+            //registering alarms:
+            //writing to SQL
+            if (TT02H_Activ == false && opcData6 == true)
+            {
+                string SQLQueryWriteAlarmH = $"insertALARMSAMPLE 'TT02_H','{DateTime.Now}'";
+                SqlCommand SqlCmd4 = new SqlCommand(SQLQueryWriteAlarmH, SqlCon);
+                SqlCmd4.ExecuteNonQuery();
+
+                TT02H_Activ = true;
+                lstMessages.Items.Add(DateTime.Now + ": TT02_L_Activ etter if " + TT02L_Activ);
+            }
+
+            if (opcData6 == false) { TT02H_Activ = false; } // nullstille alarmflagget
+
+            if (TT02L_Activ == false && opcData7 == true)
+            {
+                string SQLQueryWriteAlarmL = $"insertALARMSAMPLE 'TT02_L','{DateTime.Now}'";
+                SqlCommand SqlCmd5 = new SqlCommand(SQLQueryWriteAlarmL, SqlCon);
+                SqlCmd5.ExecuteNonQuery();
+                lstMessages.Items.Add(DateTime.Now + ": Alarm TT02_L: saved to SQL");
+                TT02L_Activ = true;
+                lstMessages.Items.Add(DateTime.Now + ": TT02_L_Activ etter if " + TT02L_Activ);
+            }
+
+            if (opcData7 == false) { TT02L_Activ = false; } // nullstille alarmflagget
+
+            {
+
+            }
+            {
+
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////
+            //Alarm handling
+
+
+
         }
         void OpcReadOnStartup()
         {
@@ -113,7 +168,7 @@ namespace Ass6GUI
             txtTT02_ref.Text = opcData3.Value.ToString();
             txtEHT01.Text = opcData4.Value.ToString();
             //cbEHT01Mode.SelectedIndex = (int)opcData5.Value;
-
+            SqlCon.Open();
 
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -159,12 +214,6 @@ namespace Ass6GUI
             cbEHT01Mode.Items.Add("Manual On");
             cbEHT01Mode.Items.Add("Auto");
             OpcReadOnStartup();
-
-
-
-            
-
-
 
         }
 
@@ -251,6 +300,8 @@ namespace Ass6GUI
 
         private void trendToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var TrendForm = new FormTrend();
+            TrendForm.Show();
 
         }
 
@@ -265,6 +316,12 @@ namespace Ass6GUI
             //SqlCon.Close();
 
 
+        }
+
+        private void alarmHandlingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var Form3 = new Alarms();
+            Form3.Show();
         }
     }
 }
