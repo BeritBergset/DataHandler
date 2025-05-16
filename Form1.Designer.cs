@@ -55,6 +55,7 @@
             trendToolStripMenuItem = new ToolStripMenuItem();
             createReportToolStripMenuItem = new ToolStripMenuItem();
             alarmHandlingToolStripMenuItem = new ToolStripMenuItem();
+            label6 = new Label();
             ((System.ComponentModel.ISupportInitialize)cht_Temp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)chart2).BeginInit();
             menuStrip1.SuspendLayout();
@@ -63,6 +64,7 @@
             // txtTT02_ref
             // 
             txtTT02_ref.AllowDrop = true;
+            txtTT02_ref.Enabled = false;
             txtTT02_ref.Location = new Point(329, 166);
             txtTT02_ref.Name = "txtTT02_ref";
             txtTT02_ref.Size = new Size(78, 31);
@@ -82,6 +84,7 @@
             // 
             // txtTT01
             // 
+            txtTT01.Enabled = false;
             txtTT01.Location = new Point(329, 92);
             txtTT01.Name = "txtTT01";
             txtTT01.Size = new Size(78, 31);
@@ -141,6 +144,7 @@
             // 
             // txtEHT01
             // 
+            txtEHT01.Enabled = false;
             txtEHT01.Location = new Point(329, 203);
             txtEHT01.Name = "txtEHT01";
             txtEHT01.Size = new Size(78, 31);
@@ -158,6 +162,7 @@
             // 
             // cbEHT01Mode
             // 
+            cbEHT01Mode.Enabled = false;
             cbEHT01Mode.FormattingEnabled = true;
             cbEHT01Mode.Location = new Point(327, 249);
             cbEHT01Mode.Name = "cbEHT01Mode";
@@ -245,12 +250,22 @@
             alarmHandlingToolStripMenuItem.Text = "Alarm Handling";
             alarmHandlingToolStripMenuItem.Click += alarmHandlingToolStripMenuItem_Click;
             // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(29, 637);
+            label6.Name = "label6";
+            label6.Size = new Size(53, 25);
+            label6.TabIndex = 31;
+            label6.Text = "Logg";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.GradientInactiveCaption;
             ClientSize = new Size(1418, 879);
+            Controls.Add(label6);
             Controls.Add(lstMessages);
             Controls.Add(label5);
             Controls.Add(cbEHT01Mode);
@@ -300,5 +315,6 @@
         private ToolStripMenuItem createReportToolStripMenuItem;
         private ToolStripMenuItem alarmHandlingToolStripMenuItem;
         private ToolStripMenuItem trendToolStripMenuItem;
+        private Label label6;
     }
 }

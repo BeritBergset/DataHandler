@@ -9,7 +9,7 @@ using System.Windows.Markup;
 using Microsoft.Data.SqlTypes;
 using Ass6_GUI;
 using Opc.UaFx;
-using AirHeater;
+using DataHandler;
 
 namespace Ass6GUI
 {
@@ -67,13 +67,8 @@ namespace Ass6GUI
             Opc.UaFx.OpcValue opcData5 = clientR.ReadNode(EHT01_Mode).As<int>();
             Opc.UaFx.OpcValue opcData6 = clientR.ReadNode(strTT02_H).As<bool>();
             Opc.UaFx.OpcValue opcData7 = clientR.ReadNode(strTT02_L).As<bool>(); ;
-            lstMessages.Items.Add(DateTime.Now + " TT02_H: " + opcData6);
-            lstMessages.Items.Add(DateTime.Now + " TT02_L: " + opcData7);
-
-            Type valueType = opcData6.Value.GetType();
-            lstMessages.Items.Add($"Type of opcData6.Value: {valueType}");
-
-
+            
+                        
             TT01_values.Add((double)opcData1.Value);
             TT02_values.Add((double)opcData2.Value);
             TT02ref_values.Add((double)opcData3.Value);
@@ -97,7 +92,6 @@ namespace Ass6GUI
             //Write samples to SQL server Cyclic
 
             string SQLQueryWriteSample1 = $"insertsample TT01,{TT01_values[cnt]},'{DateTime.Now}'";
-
             string SQLQueryWriteSample2 = $"insertsample TT02,{TT02_values[cnt]},'{DateTime.Now}'";
             string SQLQueryWriteSample3 = $"insertsample EHT01,{EHT01_values[cnt]},'{DateTime.Now}'";
 
@@ -107,40 +101,44 @@ namespace Ass6GUI
             SqlCmd2.ExecuteNonQuery();
             SqlCommand SqlCmd3 = new SqlCommand(SQLQueryWriteSample3, SqlCon);
             SqlCmd3.ExecuteNonQuery();
-            lstMessages.Items.Add(DateTime.Now + ": TT02_H_Activ før if " + TT02H_Activ);
-
+            
             //registering alarms:
             //writing to SQL
             if (TT02H_Activ == false && opcData6 == true)
             {
-                string SQLQueryWriteAlarmH = $"insertALARMSAMPLE 'TT02_H','{DateTime.Now}'";
+                string SQLQueryWriteAlarmH = $"insertALARMSAMPLE 'TT02_H','{DateTime.Now}',1";
                 SqlCommand SqlCmd4 = new SqlCommand(SQLQueryWriteAlarmH, SqlCon);
                 SqlCmd4.ExecuteNonQuery();
 
                 TT02H_Activ = true;
-                lstMessages.Items.Add(DateTime.Now + ": TT02_L_Activ etter if " + TT02L_Activ);
+                
             }
 
-            if (opcData6 == false) { TT02H_Activ = false; } // nullstille alarmflagget
-
+            if (opcData6 == false && TT02H_Activ == true) // alarmen er frågått, må oppdatere databasen med ny 
+            {
+                string SQLQueryWriteAlarmH_off = $"insertALARMSAMPLE 'TT02_H','{DateTime.Now}',0";
+                SqlCommand SqlCmd5 = new SqlCommand(SQLQueryWriteAlarmH_off, SqlCon);
+                SqlCmd5.ExecuteNonQuery();
+                TT02H_Activ = false;  // nullstille alarmflagget
+            }
             if (TT02L_Activ == false && opcData7 == true)
             {
-                string SQLQueryWriteAlarmL = $"insertALARMSAMPLE 'TT02_L','{DateTime.Now}'";
-                SqlCommand SqlCmd5 = new SqlCommand(SQLQueryWriteAlarmL, SqlCon);
-                SqlCmd5.ExecuteNonQuery();
-                lstMessages.Items.Add(DateTime.Now + ": Alarm TT02_L: saved to SQL");
+                string SQLQueryWriteAlarmL = $"insertALARMSAMPLE 'TT02_L','{DateTime.Now}',1";
+                SqlCommand SqlCmd6 = new SqlCommand(SQLQueryWriteAlarmL, SqlCon);
+                SqlCmd6.ExecuteNonQuery();
                 TT02L_Activ = true;
-                lstMessages.Items.Add(DateTime.Now + ": TT02_L_Activ etter if " + TT02L_Activ);
+                
             }
 
-            if (opcData7 == false) { TT02L_Activ = false; } // nullstille alarmflagget
-
+            if (opcData7 == false && TT02L_Activ == true) 
             {
-
-            }
-            {
-
-            }
+                string SQLQueryWriteAlarmL_off = $"insertALARMSAMPLE 'TT02_L','{DateTime.Now}',0";
+                SqlCommand SqlCmd7 = new SqlCommand(SQLQueryWriteAlarmL_off, SqlCon);
+                SqlCmd7.ExecuteNonQuery();
+                TT02L_Activ = false; // nullstille alarmflagget
+            } 
+        
+     
 
             ////////////////////////////////////////////////////////////////////////////////////
             //Alarm handling
@@ -270,7 +268,7 @@ namespace Ass6GUI
             var clientW = new OpcClient(opcUrl1); // create new object
             clientW.Connect();
             double TT02_ref;                        // define the variable to be written to OPC
-            TT02_ref = Convert.ToDouble(txtTT02_ref.Text);  //convert to right format
+           TT02_ref = Convert.ToDouble(txtTT02_ref.Text);  //convert to right format
             clientW.WriteNode(tagName, TT02_ref);           // 
             lstMessages.Items.Add(DateTime.Now + ": New reference for TT02 set to: " + TT02_ref + " ['C]");
             clientW.Disconnect();
@@ -307,21 +305,14 @@ namespace Ass6GUI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //string SQLconnectionString = "Data source = DESKTOP-MHK7BOK\\SQLEXPRESS;Initial Catalog =AirHeater;Integrated Security=True;TrustServerCertificate=True";
-            //string SQLQueryWriteSample = "insertsample TT01,22.44,'2025-05-08 13:30:00'";
-            //SqlConnection sqlCon = new SqlConnection(SQLconnectionString);
-            //sqlCon.Open();
-            //SqlCommand sqlCmd = new SqlCommand(SQLQueryWriteSample, sqlCon);
-            //sqlCmd.ExecuteNonQuery();
-            //SqlCon.Close();
+       
 
 
         }
 
         private void alarmHandlingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var Form3 = new Alarms();
-            Form3.Show();
+           
         }
     }
 }

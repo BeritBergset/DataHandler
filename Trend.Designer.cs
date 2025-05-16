@@ -36,6 +36,7 @@
             lblSensorlist = new Label();
             lstMessages = new ListBox();
             cht_Trend = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            label6 = new Label();
             ((System.ComponentModel.ISupportInitialize)dGViewSensors).BeginInit();
             ((System.ComponentModel.ISupportInitialize)cht_Trend).BeginInit();
             SuspendLayout();
@@ -73,7 +74,7 @@
             lstMessages.Location = new Point(17, 452);
             lstMessages.Name = "lstMessages";
             lstMessages.SelectionMode = SelectionMode.MultiSimple;
-            lstMessages.Size = new Size(1313, 54);
+            lstMessages.Size = new Size(1313, 129);
             lstMessages.TabIndex = 2;
             // 
             // cht_Trend
@@ -95,11 +96,21 @@
             cht_Trend.TabIndex = 24;
             cht_Trend.Text = "chart1";
             // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(17, 424);
+            label6.Name = "label6";
+            label6.Size = new Size(53, 25);
+            label6.TabIndex = 32;
+            label6.Text = "Logg";
+            // 
             // FormTrend
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1361, 526);
+            ClientSize = new Size(1361, 587);
+            Controls.Add(label6);
             Controls.Add(cht_Trend);
             Controls.Add(lstMessages);
             Controls.Add(lblSensorlist);
@@ -123,5 +134,6 @@
         private Label lblSensorlist;
         private ListBox lstMessages;
         private System.Windows.Forms.DataVisualization.Charting.Chart cht_Trend;
+        private Label label6;
     }
 }
