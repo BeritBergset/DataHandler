@@ -1,6 +1,6 @@
-﻿namespace Ass6GUI
+﻿namespace RealTimeModule
 {
-    partial class Form1
+    partial class RealTimeData
     {
         /// <summary>
         ///  Required designer variable.

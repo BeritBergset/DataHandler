@@ -61,7 +61,6 @@ namespace Ass6_GUI
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) // henter den tagen som er valgt, og skal oppdatere trend
         {
             var Tag = dGViewSensors.Rows[e.RowIndex].Cells[1].Value.ToString();
-            lstMessages.Items.Add("Chosen Tag: " + Tag);
             //cht_Trend.Series.Clear();
             
 
@@ -72,7 +71,6 @@ namespace Ass6_GUI
             DateTime Now = DateTime.Now;
     
             string SQLQueryReadSample1Min = $"select Timestamp,AvgValue from view1MinSamples where SensorTag='{Tag}' and Timestamp >= DATEADD(MINUTE, -60, GETDATE()) order by TimeStamp desc";
-            lstMessages.Items.Add(SQLQueryReadSample1Min);
             SqlCommand command = new(SQLQueryReadSample1Min, SqlCon);
             SqlDataReader read1MinSamples = command.ExecuteReader();
             

@@ -7,14 +7,16 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Markup;
 using Microsoft.Data.SqlTypes;
-using Ass6_GUI;
+using DataModule;
 using Opc.UaFx;
-using DataHandler;
+using Ass6_GUI;
 
-namespace Ass6GUI
+namespace RealTimeModule
 {
-    public partial class Form1 : Form
+    public partial class RealTimeData : Form
     {
+        public OpcClient clientR;
+        public SqlConnection SqlCon;
         private List<double> x_values = new List<double>();
         private List<double> TT01_values = new List<double>();
         private List<double> TT02_values = new List<double>();
@@ -22,18 +24,21 @@ namespace Ass6GUI
         private List<double> EHT01_values = new List<double>();
         //private List<double> MY_TT02_values = new List<double>();
         //private List<double> MY_TT03_values = new List<double>();
-        private OpcClient clientR;
+       
 
         private int cnt = 0;
-        public SqlConnection SqlCon = new SqlConnection("Data source = DESKTOP-MHK7BOK\\SQLEXPRESS;Initial Catalog =AirHeater;Integrated Security=True;TrustServerCertificate=True");
+        //public SqlConnection SqlCon = new SqlConnection("Data source = DESKTOP-MHK7BOK\\SQLEXPRESS;Initial Catalog =AirHeater;Integrated Security=True;TrustServerCertificate=True");
         public bool TT02H_Activ = false;
         public bool TT02L_Activ = false;
 
-        public Form1()
+        public RealTimeData(string NewServer,string NewSqlServer,string NewDatabase,string NewOpcUrl,string DataHandlerName)
         {
             InitializeComponent();
 
             timer1.Interval = 1000;
+            SqlCon = new SqlConnection($"Data source = {NewServer}\\{NewSqlServer};Initial Catalog ={NewDatabase};Integrated Security=True;TrustServerCertificate=True");
+            clientR = new OpcClient(NewOpcUrl);
+            this.Text = "DataHandler: " + DataHandlerName;
 
         }
 
@@ -91,61 +96,32 @@ namespace Ass6GUI
             ////////////////////////////////////////////////////////////////////////////////////
             //Write samples to SQL server Cyclic
 
-            string SQLQueryWriteSample1 = $"insertsample TT01,{TT01_values[cnt]},'{DateTime.Now}'";
-            string SQLQueryWriteSample2 = $"insertsample TT02,{TT02_values[cnt]},'{DateTime.Now}'";
-            string SQLQueryWriteSample3 = $"insertsample EHT01,{EHT01_values[cnt]},'{DateTime.Now}'";
+            string Now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string SQLQueryWriteSample1 = $"insertsample TT01,{TT01_values[cnt]},'{Now}'";
+            string SQLQueryWriteSample2 = $"insertsample TT02,{TT02_values[cnt]},'{Now}'";
+            string SQLQueryWriteSample3 = $"insertsample EHT01,{EHT01_values[cnt]},'{Now}'";
+            WriteSQL(SQLQueryWriteSample1);
+            WriteSQL(SQLQueryWriteSample2);
+            WriteSQL(SQLQueryWriteSample3);
 
-            SqlCommand SqlCmd = new SqlCommand(SQLQueryWriteSample1, SqlCon);
-            SqlCmd.ExecuteNonQuery();
-            SqlCommand SqlCmd2 = new SqlCommand(SQLQueryWriteSample2, SqlCon);
-            SqlCmd2.ExecuteNonQuery();
-            SqlCommand SqlCmd3 = new SqlCommand(SQLQueryWriteSample3, SqlCon);
-            SqlCmd3.ExecuteNonQuery();
-            
-            //registering alarms:
-            //writing to SQL
-            if (TT02H_Activ == false && opcData6 == true)
-            {
-                string SQLQueryWriteAlarmH = $"insertALARMSAMPLE 'TT02_H','{DateTime.Now}',1";
-                SqlCommand SqlCmd4 = new SqlCommand(SQLQueryWriteAlarmH, SqlCon);
-                SqlCmd4.ExecuteNonQuery();
+            //SqlCommand SqlCmd = new SqlCommand(SQLQueryWriteSample1, SqlCon);
+            //SqlCmd.ExecuteNonQuery();
+            //SqlCommand SqlCmd2 = new SqlCommand(SQLQueryWriteSample2, SqlCon);
+            //SqlCmd2.ExecuteNonQuery();
+            //SqlCommand SqlCmd3 = new SqlCommand(SQLQueryWriteSample3, SqlCon);
+            //SqlCmd3.ExecuteNonQuery();
 
-                TT02H_Activ = true;
-                
-            }
 
-            if (opcData6 == false && TT02H_Activ == true) // alarmen er frågått, må oppdatere databasen med ny 
-            {
-                string SQLQueryWriteAlarmH_off = $"insertALARMSAMPLE 'TT02_H','{DateTime.Now}',0";
-                SqlCommand SqlCmd5 = new SqlCommand(SQLQueryWriteAlarmH_off, SqlCon);
-                SqlCmd5.ExecuteNonQuery();
-                TT02H_Activ = false;  // nullstille alarmflagget
-            }
-            if (TT02L_Activ == false && opcData7 == true)
-            {
-                string SQLQueryWriteAlarmL = $"insertALARMSAMPLE 'TT02_L','{DateTime.Now}',1";
-                SqlCommand SqlCmd6 = new SqlCommand(SQLQueryWriteAlarmL, SqlCon);
-                SqlCmd6.ExecuteNonQuery();
-                TT02L_Activ = true;
-                
-            }
-
-            if (opcData7 == false && TT02L_Activ == true) 
-            {
-                string SQLQueryWriteAlarmL_off = $"insertALARMSAMPLE 'TT02_L','{DateTime.Now}',0";
-                SqlCommand SqlCmd7 = new SqlCommand(SQLQueryWriteAlarmL_off, SqlCon);
-                SqlCmd7.ExecuteNonQuery();
-                TT02L_Activ = false; // nullstille alarmflagget
-            } 
-        
-     
-
-            ////////////////////////////////////////////////////////////////////////////////////
-            //Alarm handling
 
 
 
         }
+        void WriteSQL(string SQLQueryWrite)
+        {
+            SqlCommand SqlCmd = new SqlCommand(SQLQueryWrite, SqlCon);
+            SqlCmd.ExecuteNonQuery();
+        }
+
         void OpcReadOnStartup()
         {
             //les inn alle variabler temperaturar pr syklustid

@@ -47,7 +47,7 @@
             dGViewSensors.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             dGViewSensors.BorderStyle = BorderStyle.Fixed3D;
             dGViewSensors.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dGViewSensors.GridColor = SystemColors.Info;
+            dGViewSensors.GridColor = SystemColors.ControlLightLight;
             dGViewSensors.Location = new Point(12, 51);
             dGViewSensors.Name = "dGViewSensors";
             dGViewSensors.ReadOnly = true;
